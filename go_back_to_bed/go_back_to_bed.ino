@@ -3,14 +3,43 @@
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27,20,4);
 
+// WIFI
+#include <ArduinoHttpClient.h>
+#include <SPI.h>
+#include <WiFiNINA.h>
+#include <ArduinoJson.h>
+
+#include "arduino_secrets.h"
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
+
+WiFiClient wifi;
+int status = WL_IDLE_STATUS;
+
 void setup() {
   Serial.begin(9600);
   lcd.init();  //initialize the lcd
   lcd.backlight();  //open the backlight
-  lcd_print(1, "Line 1 1234567890123");
-  lcd_print(2, "Line 2 1234567890123");
-  lcd_print(3, "Line 3 1234567890123");
-  lcd_print(4, "Line 4 1234567890123");
+
+  while (!Serial);
+  while ( status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to Network named: ");
+    Serial.println(ssid);     // print the network name (SSID);
+    Serial.println(pass);     // print the network name (SSID);
+    delay(1000);
+    // Connect to WPA/WPA2 network:
+    status = WiFi.begin(ssid, pass);
+  }
+
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print your WiFi shield's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+
 }
 
 void loop() {
