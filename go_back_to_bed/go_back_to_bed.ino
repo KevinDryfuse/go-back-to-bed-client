@@ -80,17 +80,39 @@ void loop() {
   String response = client.responseBody();
   Serial.print("Status code: ");
   Serial.println(statusCode);
-  DynamicJsonDocument doc(2000);
-  deserializeJson(doc, response);
-  
-  String test_value = doc[F("test")];
 
-  Serial.print(response);
+  if ( statusCode != 200) {
+    status = WL_IDLE_STATUS;
+  }
+  else {
+    DynamicJsonDocument doc(2000);
+    deserializeJson(doc, response);
+    
+    String test_value = doc[F("test")];
   
-  // Print values.
-  Serial.print("test value: ");
-  Serial.println(test_value);
+    Serial.print(response);
+    
+    // Print values.
+    Serial.print("test value: ");
+    Serial.println(test_value);
 
+    glow();
+    
+  }
+
+  while ( status != WL_CONNECTED) {
+    delay(1000);
+    Serial.print("Attempting to connect to Network named: ");
+    Serial.println(ssid);     // print the network name (SSID);
+
+    // Connect to WPA/WPA2 network:
+    status = WiFi.disconnect();  
+    status = WiFi.begin(ssid, pass);
+  }
+  delay(1000);
+}
+
+void glow() {
   for (int pixel = 0; pixel < STRIPSIZE; pixel++) {
     strip.setPixelColor(pixel, strip.Color(0,0,255));
   }
@@ -119,8 +141,7 @@ void loop() {
     else {
       delay(50);
     }
-  }
-  delay(1000);
+  }  
 }
 
 void lcd_print(int row, String message) {
